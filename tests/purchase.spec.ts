@@ -1,0 +1,37 @@
+import {test,expect} from '@playwright/test';
+test('mobile purchase, validation and audio download',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('/');
+ await expect(page.getByRole('heading',{name:/世界很快，\s*你可以慢一點。/})).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ const audio=page.locator('audio');
+ await audio.evaluate((el:HTMLAudioElement)=>el.load());
+ await expect.poll(()=>audio.evaluate((el:HTMLAudioElement)=>el.duration)).toBeCloseTo(30,0);
+ await audio.evaluate((el:HTMLAudioElement)=>el.play());
+ await expect.poll(()=>audio.evaluate((el:HTMLAudioElement)=>el.currentTime)).toBeGreaterThan(0);
+ await page.getByRole('link',{name:'帶走你的安靜'}).click();
+ await page.getByRole('button',{name:/確認模擬付款/}).click();
+ await expect(page).toHaveURL(/checkout/);
+ await page.getByLabel('你的稱呼').fill('測試小嶼');
+ await page.getByLabel('電子郵件',{exact:true}).fill('test@example.com');
+ await page.getByRole('button',{name:/確認模擬付款/}).click();
+ await expect(page).toHaveURL(/checkout/);
+ await page.getByRole('checkbox').check();
+ await page.getByRole('button',{name:/確認模擬付款/}).click();
+ await expect(page).toHaveURL(/success/);
+ await expect(page.getByRole('heading',{name:/謝謝你，測試小嶼/})).toBeVisible();
+ const downloadPromise=page.waitForEvent('download');
+ await page.getByRole('link',{name:'下載示範音訊'}).click();
+ const download=await downloadPromise;
+ expect(download.suggestedFilename()).toContain('.wav');
+ await page.reload();
+ await expect(page.getByRole('heading',{name:/謝謝你，測試小嶼/})).toBeVisible();
+ await page.screenshot({path:'test-results/success-mobile.png',fullPage:true});
+});
+test('direct success requires an order and desktop has no overflow',async({page})=>{
+ await page.goto('/success');
+ await expect(page.getByRole('link',{name:'前往模擬結帳'})).toBeVisible();
+ await page.goto('/');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:'test-results/home-desktop.png',fullPage:true});
+});
