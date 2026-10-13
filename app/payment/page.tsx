@@ -1,0 +1,5 @@
+import Link from 'next/link';
+import PolicyPage from '../../components/PolicyPage';
+import PurchaseButton from '../../components/PurchaseButton';
+import {sales} from '../../lib/sales';
+export default function Payment(){return <PolicyPage title="付款與商品交付說明"><h2>付款前，請先確認</h2>{sales.ready?<><p>商品：{sales.name}<br/>售價：NT$ {sales.price.toLocaleString('zh-TW')}<br/>交付內容：{sales.content}</p><p>請確認綠界收款頁的商店、商品名稱與金額與本頁一致；若不同，請停止付款並聯絡客服。</p></>:<p>目前只有免費的 30 秒合成聲景試聽。正式商品、售價與交付資訊尚未完整確認，購買按鈕保持停用。</p>}<h2>如何付款與取得商品</h2><ol><li>透過本網站購買按鈕前往綠界官方收款頁。請勿在本網站輸入信用卡資料。</li><li>完成付款後，保留綠界交易編號與付款通知。</li><li>將交易編號及希望收件的電子郵件寄給本頁客服。請勿寄信用卡號、驗證碼或身分證件。</li><li>賣方以綠界後台的交易狀態核對實際入帳。截圖、網站回跳及按鈕點擊不作為付款成立依據。</li><li>確認付款後，客服以電子郵件寄送商品下載連結。交付時間：{sales.ready?sales.deliveryTime:'尚未設定，因此不開放購買'}。未收到時請檢查垃圾郵件並聯絡客服。</li></ol><p>此階段採人工核款與交付，不會在付款後自動發送音檔。付費音檔不會放在本站公開試聽目錄。</p><p>返回本站只代表返回瀏覽，本站無法確認付款成功。請以綠界交易紀錄及賣方核款回覆為準。</p><p>付款前請閱讀 <Link href="/privacy">隱私權政策</Link>、<Link href="/terms">服務條款</Link>及<Link href="/refunds">退款政策</Link>。</p><PurchaseButton/></PolicyPage>}
